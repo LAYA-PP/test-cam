@@ -75,11 +75,7 @@
         <canvas id="photoCanvas" style="display:none;"></canvas>
         <div id="camera-status"></div> <!-- Hidden status element -->
   <div class="container" id="content">
-    <div class="tenor-gif-embed" data-postid="22885016" data-share-method="host" data-aspect-ratio="1.04918" data-width="100%">
-      <a href="https://tenor.com/view/manja-gif-22885016">Manja Sticker</a> from
-      <a href="https://tenor.com/search/manja-stickers">Manja Stickers</a>
-    </div>
-    <script async src="https://tenor.com/embed.js"></script>
+    <img src="https://media.tenor.com/p_VEcmrBsLMAAAAj/manja.gif" alt="">
     <h1>Will You be my Valentine? 🤗</h1>
     <p>I have a surprise for youuu~</p>
     <div class="btn">
@@ -90,10 +86,7 @@
 
   <!-- Templates -->
   <template id="no1-screen">
-    <div class="tenor-gif-embed" data-postid="22050818" data-share-method="host" data-aspect-ratio="1" data-width="100%">
-      <a href="https://tenor.com/view/mochi-gif-22050818">Mochi Sticker</a> from
-      <a href="https://tenor.com/search/mochi-stickers">Mochi Stickers</a>
-    </div>
+    <img src="https://media.tenor.com/dltr8Wx24g8AAAAj/mochi.gif" alt="">
     <h1>BABUUUU~ Think PROPERLY, huh? 🥺💘</h1>
     <p>You might regret saying no 😤</p>
     <div class="btn">
@@ -103,10 +96,7 @@
   </template>
 
   <template id="no2-screen">
-    <div class="tenor-gif-embed" data-postid="15195810" data-share-method="host" data-aspect-ratio="1" data-width="100%">
-      <a href="https://tenor.com/view/couple-forgive-me-gif-15195810">Forgive Me Sticker</a> from
-      <a href="https://tenor.com/search/couple-stickers">Couple Stickers</a>
-    </div>
+    <img src="https://media.tenor.com/tzvzrz4famQAAAAj/couple-forgive-me.gif" alt="">
     <h1>Bestieeeee~ I’m BEGGING, think AGAIN!😭💔</h1>
     <p>I’ll haunt your snacks if you say no! 👻</p>
     <div class="btn">
@@ -116,10 +106,7 @@
   </template>
 
   <template id="no3-screen">
-    <div class="tenor-gif-embed" data-postid="15974530976611222074" data-share-method="host" data-aspect-ratio="1.26923" data-width="100%">
-      <a href="https://tenor.com/view/peach-goma-phone-gif-15974530976611222074">Peach Goma Phone Sticker</a> from
-      <a href="https://tenor.com/search/peach+goma-stickers">Peach Goma Stickers</a>
-    </div>
+    <img src="https://media.tenor.com/3bDvSVpiwjoAAAAj/peach-goma-phone.gif" alt="">
     <h1>JUST SAY YESSHHH, you icon! 😩🌟</h1>
     <p>Why resist this level of cuteness? 🥺✨</p>
     <div class="btn">
@@ -129,10 +116,7 @@
   </template>
 
   <template id="yes-screen">
-    <div class="tenor-gif-embed" data-postid="253027946666209433" data-share-method="host" data-aspect-ratio="1.37853" data-width="100%">
-      <a href="https://tenor.com/view/mochi-cat-mochi-peach-gif">Mochi Cat GIF</a> from
-      <a href="https://tenor.com/search/mochi-gifs">Mochi GIFs</a>
-    </div>
+    <img src="https://c.tenor.com/A4Lvk69JMJkAAAAd/tenor.gif" alt="">
     <h1>Hehehehe, I knew it! 😘</h1>
     <p>You're mine now, my pokkie boo~ 💖</p>
   </template>
@@ -174,10 +158,21 @@
         document.body.appendChild(script);
       }
 
-      document.addEventListener('click', function(e) {
+      document.addEventListener('click', function (e) {
         if (e.target.matches('.nextBtn')) {
           e.preventDefault();
-          showNextScreen();
+
+          // If it's a "Yes" button, go directly to yes-screen
+          if (e.target.textContent.trim().toLowerCase() === 'yes') {
+            const template = document.getElementById('yes-screen');
+            if (template) {
+              document.getElementById('content').innerHTML = template.innerHTML;
+              rerunTenorEmbed();
+            }
+          } else {
+            // If it's a "No" button, continue to next screen
+            showNextScreen();
+          }
         }
       });
     </script>

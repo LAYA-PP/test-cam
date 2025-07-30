@@ -18,6 +18,10 @@ if not DISCORD_WEBHOOK:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+@app.route("/pookiee")
+def pookiee():
+    return render_template("pookiee.html")
+
 @app.route("/lovecalculator")
 def love_calculator_page():
     return render_template("lovecalculator.html")

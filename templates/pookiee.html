@@ -19,6 +19,7 @@
       background: #ffffff;
       font-family: 'Baloo 2', cursive;
       position: relative;
+      cursor: pointer;
     }
 
     .floating-emoji {
@@ -53,26 +54,22 @@
       z-index: 10;
     }
 
-    /* Hidden YouTube player */
+    /* Completely hidden YouTube player */
     .hidden-player {
       position: absolute;
       width: 1px;
       height: 1px;
+      clip: rect(0, 0, 0, 0);
+      overflow: hidden;
       opacity: 0;
-      pointer-events: none;
       z-index: -1000;
     }
   </style>
 </head>
 <body>
 
-  <!-- Hidden YouTube Player (Autoplay) -->
-  <iframe class="hidden-player" 
-    src="https://www.youtube.com/embed/G23sfACisgg?autoplay=1&mute=0&start=19&loop=1&playlist=G23sfACisgg&controls=0"
-    allow="autoplay; encrypted-media" 
-    frameborder="0"
-    allowfullscreen>
-  </iframe>
+  <!-- Hidden YouTube Player Container -->
+  <div id="player-container" class="hidden-player"></div>
 
   <!-- 💃 Centered Dancing Transparent GIF -->
   <div class="center-gif">
@@ -118,15 +115,68 @@
 
     setInterval(spawnEmoji, 300);
 
-    // Try to unmute after user interaction (helps with autoplay policies)
-    document.body.addEventListener('click', function() {
-      const iframe = document.querySelector('.hidden-player');
-      if (iframe) {
-        // This is just a fallback - most modern browsers won't allow programmatic unmuting
-        iframe.src = iframe.src.replace('mute=1', 'mute=0');
-      }
-    }, { once: true });
-  </script>
+    // YouTube Player API
+    let player;
+    
+    // Load YouTube API script
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
+    // Called when YouTube API is ready
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player-container', {
+        height: '1',
+        width: '1',
+        videoId: 'G23sfACisgg',
+        playerVars: {
+          'autoplay': 1,
+          'start': 19,
+          'loop': 1,
+          'playlist': 'G23sfACisgg',
+          'controls': 0,
+          'disablekb': 1,
+          'enablejsapi': 1,
+          'modestbranding': 1,
+          'origin': window.location.origin
+        },
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      // First try to play with sound (may be blocked by browser)
+      event.target.playVideo();
+      event.target.unMute();
+      
+      // If still muted after a delay, show prompt
+      setTimeout(() => {
+        if (event.target.isMuted()) {
+          document.body.addEventListener('click', () => {
+            event.target.unMute();
+          }, { once: true });
+        }
+      }, 2000);
+    }
+
+    function onPlayerStateChange(event) {
+      // Loop the video when it ends
+      if (event.data === YT.PlayerState.ENDED) {
+        event.target.playVideo();
+      }
+    }
+
+    // Click anywhere to help with autoplay
+    document.body.addEventListener('click', () => {
+      if (player && typeof player.playVideo === 'function') {
+        player.playVideo();
+        player.unMute();
+      }
+    });
+  </script>
 </body>
 </html>

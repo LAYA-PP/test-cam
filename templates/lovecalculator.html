@@ -5,20 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>💖 Love Calculator 💖</title>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&family=Pacifico&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.4/lottie.min.js"></script>
   <style>
     * {
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
     }
 
-    body {
-      margin: 0;
-      background: linear-gradient(to bottom right, #ffe6f0, #fff0f5);
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       font-family: 'Quicksand', sans-serif;
+      background: linear-gradient(to bottom right, #ffe6f0, #fff0f5);
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
       padding: 20px;
+      position: relative;
+      cursor: pointer;
     }
 
     .container {
@@ -30,6 +36,7 @@
       width: 100%;
       max-width: 400px;
       position: relative;
+      z-index: 2;
     }
 
     h2 {
@@ -79,10 +86,34 @@
       margin-bottom: 10px;
     }
 
+    .floating-emoji {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      opacity: 0.85;
+      animation: floatUp linear infinite;
+      z-index: 1;
+      pointer-events: none;
+    }
+
     @keyframes float {
       0% { transform: translateY(0); }
       50% { transform: translateY(-8px); }
       100% { transform: translateY(0); }
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(100vh) scale(1);
+        opacity: 0;
+      }
+      20% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-20vh) scale(1.2);
+        opacity: 0;
+      }
     }
 
     @media screen and (max-width: 480px) {
@@ -114,23 +145,90 @@
 
   <script>
     function calculateLove() {
-      const yourName = document.getElementById("yourName").value.trim();
-      const crushName = document.getElementById("crushName").value.trim();
+      const yourName = document.getElementById("yourName").value.trim().toLowerCase();
+      const crushName = document.getElementById("crushName").value.trim().toLowerCase();
 
       if (!yourName || !crushName) {
         alert("Please fill both names cutie! 💌");
         return;
       }
 
-      const score = (yourName.length * crushName.length * 7) % 101;
-      document.getElementById("result").innerText = `${yourName} ❤️ ${crushName} = ${score}% Match!`;
+      const result = advancedLoveCalculator(yourName, crushName);
+      document.getElementById("result").innerText = `${yourName} ❤️ ${crushName} = ${result}% Match!`;
 
       fetch("/log", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ yourName, crushName, score })
+        body: JSON.stringify({ yourName, crushName, result })
       });
     }
+
+    function advancedLoveCalculator(name1, name2) {
+      const merged = (name1 + name2).replace(/[^a-z]/g, '');
+      const freq = {};
+
+      for (let ch of merged) {
+        freq[ch] = (freq[ch] || 0) + 1;
+      }
+
+      let nums = Object.values(freq);
+
+      while (nums.length > 2) {
+        const next = [];
+        let i = 0, j = nums.length - 1;
+
+        while (i <= j) {
+          if (i === j) {
+            next.push(nums[i]);
+          } else {
+            next.push(nums[i] + nums[j]);
+          }
+          i++;
+          j--;
+        }
+
+        nums = next;
+      }
+
+      const result = parseInt(nums.join('').slice(0, 2)); // Limit to 2 digits max
+      return Math.min(result, 100); // Clamp at 100
+    }
+
+    // Floating Emoji Animation
+    const emojis = [
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f48c/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/2728/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f63b/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/2764_fe0f/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f49d/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f49e/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f495/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1fac0/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f60d/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f618/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f970/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1faf0_1f3fb/lottie.json"
+    ];
+
+    function spawnEmoji() {
+      const container = document.createElement('div');
+      container.className = 'floating-emoji';
+      container.style.left = Math.random() * 100 + 'vw';
+      container.style.animationDuration = (6 + Math.random() * 4) + 's';
+      document.body.appendChild(container);
+
+      lottie.loadAnimation({
+        container: container,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: emojis[Math.floor(Math.random() * emojis.length)]
+      });
+
+      setTimeout(() => container.remove(), 10000);
+    }
+
+    setInterval(spawnEmoji, 300);
   </script>
 </body>
 </html>

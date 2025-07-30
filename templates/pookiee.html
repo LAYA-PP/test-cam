@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pokie Heaven 💞</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #ffffff; /* White background */
+      font-family: 'Baloo 2', cursive;
+      position: relative;
+    }
+
+    .floating-emoji {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      opacity: 0.85;
+      animation: floatUp linear infinite;
+      z-index: 1;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(100vh) scale(1);
+        opacity: 0;
+      }
+      20% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-20vh) scale(1.2);
+        opacity: 0;
+      }
+    }
+
+    .center-gif {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+      z-index: 10;
+    }
+
+    .tenor-gif-embed {
+      width: 100% !important;
+      height: auto !important;
+    }
+
+    iframe#yt-audio {
+      width: 0;
+      height: 0;
+      position: absolute;
+      pointer-events: none;
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🎧 Autoplay YouTube Audio -->
+  <iframe
+    id="yt-audio"
+    src="https://www.youtube.com/embed/Ug-j2pcgKEo?start=2&autoplay=1&mute=0&loop=1&playlist=Ug-j2pcgKEo&controls=0&modestbranding=1"
+    allow="autoplay"
+    frameborder="0">
+  </iframe>
+
+  <!-- 💃 Centered Dancing Transparent GIF -->
+  <div class="center-gif">
+    
+      <img src="https://media.tenor.com/JhVlbsQoCboAAAAi/cute-dancing.gif" alt="">
+  </div>
+
+  <!-- ✨ Floating Pokie Emoji Icons -->
+  <script>
+    const emojis = [
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f48c/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/2728/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f63b/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/2764_fe0f/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f49d/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f49e/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f495/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1fac0/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f60d/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f618/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f970/lottie.json",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1faf0_1f3fb/lottie.json"
+    ];
+
+    function spawnEmoji() {
+      const container = document.createElement('div');
+      container.className = 'floating-emoji';
+      container.style.left = Math.random() * 100 + 'vw';
+      container.style.animationDuration = (6 + Math.random() * 4) + 's';
+      document.body.appendChild(container);
+
+      lottie.loadAnimation({
+        container: container,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: emojis[Math.floor(Math.random() * emojis.length)]
+      });
+
+      setTimeout(() => {
+        container.remove();
+      }, 10000);
+    }
+
+    setInterval(spawnEmoji, 300);
+  </script>
+
+</body>
+</html>

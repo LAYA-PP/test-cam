@@ -1,182 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Pokie Heaven 💞</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Pokie Button Fun</title>
   <style>
-    * {
+    body {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
+      background: #ffe4ec;
+      font-family: "Comic Sans MS", cursive, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
     }
 
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #ffffff;
-      font-family: 'Baloo 2', cursive;
-      position: relative;
+    .gif-container {
+      width: 250px;
+      height: 250px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .gif {
+      max-width: 100%;
+      max-height: 100%;
+      display: none;
+      transform: scale(0.9);
+      transition: transform 0.3s;
+    }
+
+    .gif.active {
+      transform: scale(1);
+    }
+
+    .pokkie-button {
+      background: linear-gradient(to bottom, #ff5e5e, #b30000);
+      border: none;
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+      box-shadow: 0 8px #8b0000,
+                  0 0 20px rgba(255, 0, 0, 0.3);
+      font-size: 18px;
+      color: white;
       cursor: pointer;
-    }
-
-    .floating-emoji {
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      opacity: 0.85;
-      animation: floatUp linear infinite;
-      z-index: 1;
-    }
-
-    @keyframes floatUp {
-      0% {
-        transform: translateY(100vh) scale(1);
-        opacity: 0;
-      }
-      20% {
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(-20vh) scale(1.2);
-        opacity: 0;
-      }
-    }
-
-    .center-gif {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 300px;
-      z-index: 10;
-    }
-
-    /* Completely hidden YouTube player */
-    .hidden-player {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      clip: rect(0, 0, 0, 0);
+      transition: all 0.2s;
+      position: relative;
       overflow: hidden;
+    }
+
+    .pokkie-button:active {
+      box-shadow: 0 4px #8b0000,
+                  0 0 30px rgba(255, 0, 0, 0.5);
+      transform: translateY(4px);
+    }
+
+    .pokkie-button::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
       opacity: 0;
-      z-index: -1000;
+      transition: opacity 0.3s;
+    }
+
+    .pokkie-button:active::after {
+      opacity: 1;
+      transition: opacity 0s;
+    }
+
+    .press-text {
+      margin-top: 20px;
+      color: #d10000;
+      font-size: 14px;
+      opacity: 0.7;
     }
   </style>
 </head>
 <body>
 
-  <!-- Hidden YouTube Player Container -->
-  <div id="player-container" class="hidden-player"></div>
-
-  <!-- 💃 Centered Dancing Transparent GIF -->
-  <div class="center-gif">
-    <img src="https://media.tenor.com/JhVlbsQoCboAAAAi/cute-dancing.gif" alt="">
+  <div class="gif-container">
+    <img
+      src="https://media.tenor.com/JhVlbsQoCboAAAAi/cute-dancing.gif"
+      id="gif"
+      class="gif"
+    >
   </div>
+  
+  <button class="pokkie-button" id="pressBtn">❤️ HOLD ME</button>
+  <div class="press-text">Press and hold to see the magic!</div>
 
-  <!-- ✨ Floating Pokie Emoji Icons -->
+  <audio id="funAudio" preload="auto">
+    <source src="./mp3.mp3" type="audio/mp3">
+    Your browser does not support audio.
+  </audio>
+
   <script>
-    const emojis = [
-      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f48c/lottie.json",
-      "https://fonts.gstatic.com/s/e/notoemoji/latest/2728/lottie.json",
-      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f63b/lottie.json",
-      "https://fonts.gstatic.com/s/e/notoemoji/latest/2764_fe0f/lottie.json",
-      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f49d/lottie.json",
-      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f49e/lottie.json",
-      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f495/lottie.json",
-      "https://fonts.gstatic.com/s/e/notoemoji/latest/1fac0/lottie.json",
-      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f60d/lottie.json",
-      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f618/lottie.json",
-      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f970/lottie.json",
-      "https://fonts.gstatic.com/s/e/notoemoji/latest/1faf0_1f3fb/lottie.json"
-    ];
+    const btn = document.getElementById('pressBtn');
+    const gif = document.getElementById('gif');
+    const audio = document.getElementById('funAudio');
+    let isPlaying = false;
 
-    function spawnEmoji() {
-      const container = document.createElement('div');
-      container.className = 'floating-emoji';
-      container.style.left = Math.random() * 100 + 'vw';
-      container.style.animationDuration = (6 + Math.random() * 4) + 's';
-      document.body.appendChild(container);
-
-      lottie.loadAnimation({
-        container: container,
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        path: emojis[Math.floor(Math.random() * emojis.length)]
-      });
-
+    function playMedia() {
+      if (isPlaying) return;
+      isPlaying = true;
+      gif.style.display = 'block';
       setTimeout(() => {
-        container.remove();
-      }, 10000);
+        gif.classList.add('active');
+      }, 10);
+      audio.currentTime = 0;
+      audio.play().catch(e => console.log("Audio play failed:", e));
     }
 
-    setInterval(spawnEmoji, 300);
-
-    // YouTube Player API
-    let player;
-    
-    // Load YouTube API script
-    const tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    const firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-    // Called when YouTube API is ready
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('player-container', {
-        height: '1',
-        width: '1',
-        videoId: 'G23sfACisgg',
-        playerVars: {
-          'autoplay': 1,
-          'start': 19,
-          'loop': 1,
-          'playlist': 'G23sfACisgg',
-          'controls': 0,
-          'disablekb': 1,
-          'enablejsapi': 1,
-          'modestbranding': 1,
-          'origin': window.location.origin
-        },
-        events: {
-          'onReady': onPlayerReady,
-          'onStateChange': onPlayerStateChange
-        }
-      });
-    }
-
-    function onPlayerReady(event) {
-      // First try to play with sound (may be blocked by browser)
-      event.target.playVideo();
-      event.target.unMute();
-      
-      // If still muted after a delay, show prompt
+    function stopMedia() {
+      if (!isPlaying) return;
+      isPlaying = false;
+      gif.classList.remove('active');
       setTimeout(() => {
-        if (event.target.isMuted()) {
-          document.body.addEventListener('click', () => {
-            event.target.unMute();
-          }, { once: true });
-        }
-      }, 2000);
+        gif.style.display = 'none';
+      }, 300);
+      audio.pause();
+      audio.currentTime = 0;
     }
 
-    function onPlayerStateChange(event) {
-      // Loop the video when it ends
-      if (event.data === YT.PlayerState.ENDED) {
-        event.target.playVideo();
-      }
-    }
+    // Desktop events
+    btn.addEventListener('mousedown', playMedia);
+    btn.addEventListener('mouseup', stopMedia);
+    btn.addEventListener('mouseleave', stopMedia);
 
-    // Click anywhere to help with autoplay
-    document.body.addEventListener('click', () => {
-      if (player && typeof player.playVideo === 'function') {
-        player.playVideo();
-        player.unMute();
-      }
+    // Mobile events
+    btn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      playMedia();
+    });
+
+    btn.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      stopMedia();
+    });
+
+    // Prevent context menu on long press
+    btn.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
     });
   </script>
+
 </body>
 </html>

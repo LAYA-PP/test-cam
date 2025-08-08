@@ -31,7 +31,7 @@ def log_love():
     data = request.get_json()
     your_name = data.get("yourName", "")
     crush_name = data.get("crushName", "")
-    score = data.get("score", 0)
+    score = data.get("result", 0)
     user_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
     user_agent = request.headers.get("User-Agent")
     time_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')

